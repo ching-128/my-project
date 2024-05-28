@@ -1,18 +1,35 @@
 import { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { Card, Typography } from "@material-tailwind/react";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { setJsonData } from "./jsonDataSlice";
 import PropTypes from "prop-types";
 
 const Select_file = ({ onFilesSelected }) => {
+	const navigate = useNavigate();
+	const dispatch = useDispatch();
+
 	const onDrop = useCallback(
 		(acceptedFiles) => {
-			onFilesSelected(acceptedFiles);
+			const fileReader = new FileReader();
+			fileReader.onload = () => {
+				const jsonData = JSON.parse(fileReader.result);
+				dispatch(setJsonData(jsonData));
+				navigate("/dashboard");
+			};
+			fileReader.readAsText(acceptedFiles[0]);
+			onFilesSelected(acceptedFiles); // Call the callback function
 		},
-		[onFilesSelected]
+		[navigate, dispatch, onFilesSelected]
 	);
 
 	const { getRootProps, getInputProps, isDragActive } = useDropzone({
 		onDrop,
+		maxFiles: 1,
+		accept: {
+			"application/json": [".json"],
+		},
 	});
 
 	return (

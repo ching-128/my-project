@@ -1,14 +1,11 @@
-// src/App.jsx
 import { useState, useEffect } from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Login from "./Login.jsx";
 import Select_file from "./Select_file.jsx";
+import Dashboard from "./Dashboard.jsx";
 
 const App = () => {
 	const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-	const handleFilesSelected = (files) => {
-		console.log(files);
-	};
 
 	useEffect(() => {
 		const isLoggedIn = document.cookie
@@ -22,13 +19,21 @@ const App = () => {
 	};
 
 	return (
-		<div>
-			{isLoggedIn ? (
-				<Select_file onFilesSelected={handleFilesSelected} />
-			) : (
-				<Login onLogin={handleLogin} />
-			)}
-		</div>
+		<Router>
+			<Routes>
+				<Route
+					path="/upload"
+					element={
+						isLoggedIn ? (
+							<Select_file onFilesSelected={() => {}} />
+						) : (
+							<Login onLogin={handleLogin} />
+						)
+					}
+				/>
+				<Route path="/dashboard" element={<Dashboard />} />
+			</Routes>
+		</Router>
 	);
 };
 
