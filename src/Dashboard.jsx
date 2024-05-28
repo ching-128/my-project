@@ -2,7 +2,14 @@
 import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { setJsonData } from "./jsonDataSlice";
-import { Button, Input, Card, Typography } from "@material-tailwind/react";
+import {
+	Button,
+	Input,
+	Card,
+	Typography,
+	Select,
+	Option,
+} from "@material-tailwind/react";
 
 const Dashboard = () => {
 	const projectData = useSelector((state) => state.jsonData.project_data);
@@ -23,16 +30,36 @@ const Dashboard = () => {
 		}));
 	};
 
-	const handleNestedChange = (e, category, key, isCheckbox = false) => {
-        const value = isCheckbox ? e.target.checked : e.target.value;
-        console.log(value);
-		setData((prevData) => ({
-			...prevData,
-			[category]: {
-				...prevData[category],
-				[key]: value,
-			},
-		}));
+	const handleNestedChange = (
+		e,
+		category,
+		key,
+		subKey = null,
+		isCheckbox = false
+	) => {
+		const value = isCheckbox ? e.target.checked : e.target.value;
+		setData((prevData) => {
+			if (subKey) {
+				return {
+					...prevData,
+					[category]: {
+						...prevData[category],
+						[key]: {
+							...prevData[category][key],
+							[subKey]: value,
+						},
+					},
+				};
+			} else {
+				return {
+					...prevData,
+					[category]: {
+						...prevData[category],
+						[key]: value,
+					},
+				};
+			}
+		});
 	};
 
 	const handleSubmit = (e) => {
@@ -167,49 +194,330 @@ const Dashboard = () => {
 					))}
 
 				{/* Custom Icons */}
-				<Typography variant="h5" className="mt-4 mb-2">
-					Custom Icons
-				</Typography>
-				{data.custom_icons &&
-					Object.keys(data.custom_icons).map((key) => (
-						<>
-							<div key={key} className="flex items-center">
-								<h6>
-									{key.charAt(0).toUpperCase() + key.slice(1)}
-								</h6>
-								<div className="relative inline-block w-8 h-4 rounded-full cursor-pointer">
-									<input
-										id="switch-component"
-										type="checkbox"
-										label={
-											key.charAt(0).toUpperCase() +
-											key.slice(1)
-										}
-										name={key}
-										checked={data.custom_icons[key]}
-										onChange={(e) =>
-											handleNestedChange(
-												e,
-												"custom_icons",
-												key,
-												true
-											)
-										}
-										className="absolute w-8 h-4 transition-colors duration-300 rounded-full appearance-none cursor-pointer peer bg-blue-gray-100 checked:bg-gray-900 peer-checked:border-gray-900 peer-checked:before:bg-gray-900"
-									/>
-									<label
-										htmlFor="switch-component"
-										className="before:content[''] absolute top-2/4 -left-1 h-5 w-5 -translate-y-2/4 cursor-pointer rounded-full border border-blue-gray-100 bg-white shadow-md transition-all duration-300 before:absolute before:top-2/4 before:left-2/4 before:block before:h-10 before:w-10 before:-translate-y-2/4 before:-translate-x-2/4 before:rounded-full before:bg-blue-gray-500 before:opacity-0 before:transition-opacity hover:before:opacity-10 peer-checked:translate-x-full peer-checked:border-gray-900 peer-checked:before:bg-gray-900"
+				<div className="grid pt-3 gap-y-3">
+					<Typography variant="h5">Custom Icons</Typography>
+					<div className="grid gap-y-2">
+						{data.custom_icons &&
+							Object.keys(data.custom_icons).map((key, index) => (
+								<div
+									key={key}
+									className="mb-4 flex items-center content-start gap-x-4"
+								>
+									<Typography
+										variant="h6"
+										className="min-w-[150px]"
 									>
-										<div
-											className="inline-block p-5 rounded-full top-2/4 left-2/4 -translate-x-2/4 -translate-y-2/4"
-											data-ripple-dark="true"
-										></div>
-									</label>
+										{key.charAt(0).toUpperCase() +
+											key.slice(1)}
+									</Typography>
+
+									{/* Visibility Checkbox */}
+									<div className="relative inline-block w-8 h-4 rounded-full cursor-pointer">
+										<input
+											id={`switch-component-${index}`} // Ensure unique id
+											type="checkbox"
+											label={
+												key.charAt(0).toUpperCase() +
+												key.slice(1)
+											}
+											name="visibility"
+											checked={
+												data.custom_icons[key]
+													.visibility || false
+											}
+											onChange={(e) =>
+												handleNestedChange(
+													e,
+													"custom_icons",
+													key,
+													"visibility",
+													true
+												)
+											}
+											className="absolute w-8 h-4 transition-colors duration-300 rounded-full appearance-none cursor-pointer peer bg-blue-gray-100 checked:bg-gray-900 peer-checked:border-gray-900 peer-checked:before:bg-gray-900"
+										/>
+										<label
+											htmlFor={`switch-component-${index}`} // Ensure unique id
+											className="before:content[''] absolute top-2/4 -left-1 h-5 w-5 -translate-y-2/4 cursor-pointer rounded-full border border-blue-gray-100 bg-white shadow-md transition-all duration-300 before:absolute before:top-2/4 before:left-2/4 before:block before:h-10 before:w-10 before:-translate-y-2/4 before:-translate-x-2/4 before:rounded-full before:bg-blue-gray-500 before:opacity-0 before:transition-opacity hover:before:opacity-10 peer-checked:translate-x-full peer-checked:border-gray-900 peer-checked:before:bg-gray-900"
+										>
+											<div
+												className="inline-block p-5 rounded-full top-2/4 left-2/4 -translate-x-2/4 -translate-y-2/4"
+												data-ripple-dark="true"
+											></div>
+										</label>
+									</div>
+
+									{/* Type Select */}
+									<div className="w-48">
+										<Select
+											name="type"
+											label="Select Type"
+											value={
+												data.custom_icons[key].type ||
+												""
+											}
+											onChange={(e) =>
+												handleNestedChange(
+													e,
+													"custom_icons",
+													key,
+													"type"
+												)
+											}
+											disabled
+										>
+											<Option value="contact">
+												Contact
+											</Option>
+											<Option value="url">URL</Option>
+											<Option value="gallery">
+												Gallery
+											</Option>
+											<Option value="video">Video</Option>
+											<Option value="pdf">PDF</Option>
+											<Option value="pop-up">
+												Pop-up
+											</Option>
+										</Select>
+									</div>
+
+									{/* Label Input */}
+									<div className="w-48">
+										<Input
+											type="text"
+											label="Label"
+											name="label"
+											value={
+												data.custom_icons[key].label ||
+												""
+											}
+											onChange={(e) =>
+												handleNestedChange(
+													e,
+													"custom_icons",
+													key,
+													"label"
+												)
+											}
+										/>
+									</div>
+
+									{/* Conditional Fields Based on Type */}
+									{data.custom_icons[key].type === "url" && (
+										<div className="w-48">
+											<Input
+												type="text"
+												label="URL"
+												name="url"
+												value={
+													data.custom_icons[key]
+														.url || ""
+												}
+												onChange={(e) =>
+													handleNestedChange(
+														e,
+														"custom_icons",
+														key,
+														"url"
+													)
+												}
+											/>
+										</div>
+									)}
+
+									{data.custom_icons[key].type === "pdf" && (
+										<div className="w-48">
+											<Input
+												type="text"
+												label="PDF"
+												name="pdf"
+												value={
+													data.custom_icons[key]
+														.pdf || ""
+												}
+												onChange={(e) =>
+													handleNestedChange(
+														e,
+														"custom_icons",
+														key,
+														"pdf"
+													)
+												}
+											/>
+										</div>
+									)}
+
+									{data.custom_icons[key].type ===
+										"gallery" && (
+										<div className="w-48">
+											<Input
+												type="text"
+												label="Gallery Images Number"
+												name="gallery_images_no"
+												value={
+													data.custom_icons[key]
+														.gallery_images_no || ""
+												}
+												onChange={(e) =>
+													handleNestedChange(
+														e,
+														"custom_icons",
+														key,
+														"gallery_images_no"
+													)
+												}
+											/>
+										</div>
+									)}
+
+									{data.custom_icons[key].type ===
+										"video" && (
+										<div className="w-48">
+											<Input
+												type="text"
+												label="Video Source"
+												name="video_src"
+												value={
+													data.custom_icons[key]
+														.video_src || ""
+												}
+												onChange={(e) =>
+													handleNestedChange(
+														e,
+														"custom_icons",
+														key,
+														"video_src"
+													)
+												}
+											/>
+										</div>
+									)}
+
+									{data.custom_icons[key].type === "pop-up" &&
+										data.custom_icons[key].popup && (
+											<div className="mt-4 pl-4 border-l-2 border-gray-300">
+												{Object.keys(
+													data.custom_icons[key].popup
+												).map((popupKey) => (
+													<div
+														key={popupKey}
+														className="mb-4"
+													>
+														<Typography
+															variant="h6"
+															className="mb-2"
+														>
+															{popupKey
+																.charAt(0)
+																.toUpperCase() +
+																popupKey.slice(
+																	1
+																)}
+														</Typography>
+
+														{/* Visibility Checkbox */}
+														<div className="relative inline-block w-8 h-4 rounded-full cursor-pointer">
+															<input
+																id={`switch-popup-${index}-${popupKey}`} // Ensure unique id
+																type="checkbox"
+																label="Visibility"
+																name="visibility"
+																checked={
+																	data
+																		.custom_icons[
+																		key
+																	].popup[
+																		popupKey
+																	]
+																		.visibility ||
+																	false
+																}
+																onChange={(e) =>
+																	handleNestedChange(
+																		e,
+																		"custom_icons",
+																		key,
+																		`popup.${popupKey}.visibility`,
+																		true
+																	)
+																}
+																className="absolute w-8 h-4 transition-colors duration-300 rounded-full appearance-none cursor-pointer peer bg-blue-gray-100 checked:bg-gray-900 peer-checked:border-gray-900 peer-checked:before:bg-gray-900"
+															/>
+															<label
+																htmlFor={`switch-popup-${index}-${popupKey}`} // Ensure unique id
+																className="before:content[''] absolute top-2/4 -left-1 h-5 w-5 -translate-y-2/4 cursor-pointer rounded-full border border-blue-gray-100 bg-white shadow-md transition-all duration-300 before:absolute before:top-2/4 before:left-2/4 before:block before:h-10 before:w-10 before:-translate-y-2/4 before:-translate-x-2/4 before:rounded-full before:bg-blue-gray-500 before:opacity-0 before:transition-opacity hover:before:opacity-10 peer-checked:translate-x-full peer-checked:border-gray-900 peer-checked:before:bg-gray-900"
+															>
+																<div
+																	className="inline-block p-5 rounded-full top-2/4 left-2/4 -translate-x-2/4 -translate-y-2/4"
+																	data-ripple-dark="true"
+																></div>
+															</label>
+														</div>
+
+														{/* Type Select */}
+														<div className="w-48">
+															<Select
+																name="type"
+																label="Select Type"
+																value={
+																	data
+																		.custom_icons[
+																		key
+																	].popup[
+																		popupKey
+																	].type || ""
+																}
+																onChange={(e) =>
+																	handleNestedChange(
+																		e,
+																		"custom_icons",
+																		key,
+																		`popup.${popupKey}.type`
+																	)
+																}
+															>
+																<Option value="url">
+																	URL
+																</Option>
+																<Option value="pdf">
+																	PDF
+																</Option>
+															</Select>
+														</div>
+
+														{/* Label Input */}
+														<div className="w-48">
+															<Input
+																type="text"
+																label="Label"
+																name="label"
+																value={
+																	data
+																		.custom_icons[
+																		key
+																	].popup[
+																		popupKey
+																	].label ||
+																	""
+																}
+																onChange={(e) =>
+																	handleNestedChange(
+																		e,
+																		"custom_icons",
+																		key,
+																		`popup.${popupKey}.label`
+																	)
+																}
+															/>
+														</div>
+													</div>
+												))}
+											</div>
+										)}
 								</div>
-							</div>
-						</>
-					))}
+							))}
+					</div>
+				</div>
 
 				{/* Href Custom Links */}
 				<Typography variant="h5" className="mt-4 mb-2">
@@ -323,9 +631,6 @@ const Dashboard = () => {
 							/>
 						</div>
 					))}
-
-				{/* Similarly, add sections for contact_links, splashscreen, stereographic_view, custom_icons, href_custom_links, etc. */}
-
 				<Button type="submit" color="blue">
 					Save Changes
 				</Button>

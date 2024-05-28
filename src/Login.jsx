@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import { Alert, Button, Input } from "@material-tailwind/react";
-import { useNavigate } from "react-router-dom";
 
 function Icon() {
 	return (
@@ -26,8 +25,6 @@ const Login = ({ onLogin }) => {
 	const usernameInputRef = useRef(null);
 	const [open, setOpen] = useState(false);
 
-	const navigate = useNavigate();
-
 	useEffect(() => {
 		usernameInputRef.current.focus();
 	}, []);
@@ -39,7 +36,6 @@ const Login = ({ onLogin }) => {
 			expires.setDate(expires.getDate() + 7); // 7 days from now
 			document.cookie = `session=valid; expires=${expires.toUTCString()}; path=/`;
 			onLogin();
-			navigate("/dashboard");
 		} else {
             setOpen(true);
             setTimeout(() => {

@@ -22,7 +22,7 @@ const App = () => {
 		<Router>
 			<Routes>
 				<Route
-					path="/upload"
+					path="/"
 					element={
 						isLoggedIn ? (
 							<Select_file onFilesSelected={() => {}} />
