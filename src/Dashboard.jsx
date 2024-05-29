@@ -97,15 +97,15 @@ const Dashboard = () => {
 				</div>
 				<div className="relative w-full min-w-[200px]">
 					<textarea
-						label="Project Description"
-						name="project_description"
-						value={data.project_description || ""}
+						label="About Us Description"
+						name="aboutus_description"
+						value={data.aboutus_description || ""}
 						onChange={handleChange}
 						className="peer h-full min-h-[150px] w-full resize-none rounded-md border border-blue-gray-200 border-t-transparent bg-transparent px-3 py-3 font-sans text-sm font-normal text-blue-gray-700 outline outline-0 transition-all placeholder-shown:border placeholder-shown:border-blue-gray-200 placeholder-shown:border-t-blue-gray-200 focus:border-2 focus:border-gray-900 focus:border-t-transparent focus:outline-0 disabled:resize-none disabled:border-0 disabled:bg-blue-gray-50"
 						placeholder=" "
 					></textarea>
 					<label className="before:content[' '] after:content[' '] pointer-events-none absolute left-0 -top-1.5 flex h-full w-full select-none text-[11px] font-normal leading-tight text-blue-gray-400 transition-all before:pointer-events-none before:mt-[6.5px] before:mr-1 before:box-border before:block before:h-1.5 before:w-2.5 before:rounded-tl-md before:border-t before:border-l before:border-blue-gray-200 before:transition-all after:pointer-events-none after:mt-[6.5px] after:ml-1 after:box-border after:block after:h-1.5 after:w-2.5 after:flex-grow after:rounded-tr-md after:border-t after:border-r after:border-blue-gray-200 after:transition-all peer-placeholder-shown:text-sm peer-placeholder-shown:leading-[4.1] peer-placeholder-shown:text-blue-gray-500 peer-placeholder-shown:before:border-transparent peer-placeholder-shown:after:border-transparent peer-focus:text-[11px] peer-focus:leading-tight peer-focus:text-gray-900 peer-focus:before:border-t-2 peer-focus:before:border-l-2 peer-focus:before:border-gray-900 peer-focus:after:border-t-2 peer-focus:after:border-r-2 peer-focus:after:border-gray-900 peer-disabled:text-transparent peer-disabled:before:border-transparent peer-disabled:after:border-transparent peer-disabled:peer-placeholder-shown:text-blue-gray-500">
-						Project Description
+						About Us Description
 					</label>
 				</div>
 
@@ -152,28 +152,60 @@ const Dashboard = () => {
 					))}
 
 				{/* Splashscreen */}
-				<Typography variant="h5" className="mt-4 mb-2">
-					Splashscreen
-				</Typography>
-				{data.splashscreen &&
-					Object.keys(data.splashscreen).map((key) => (
-						<div key={key} className="mb-4">
-							<Input
-								type="text"
-								label={
-									key.charAt(0).toUpperCase() + key.slice(1)
-								}
-								name={key}
-								value={data.splashscreen[key] || ""}
-								onChange={(e) =>
-									handleNestedChange(e, "splashscreen", key)
-								}
-							/>
-						</div>
-					))}
+				<div className="grid gap-3">
+					<Typography variant="h5">
+						Splashscreen
+					</Typography>
+					<div className="flex items-center gap-4">
+						{data.splashscreen &&
+							[
+								"splashscreen_image",
+								"is_whitelabeled",
+								"start_btn",
+							].map((key, index) => (
+								<div
+									key={index}
+									className="flex items-center mb-4"
+								>
+									<label className="mr-2">
+										{key.charAt(0).toUpperCase() +
+											key.slice(1).replace(/_/g, " ")}
+									</label>
+									<div className="relative inline-block w-8 h-4 rounded-full cursor-pointer">
+										<input
+											id={`switch-${key}`}
+											type="checkbox"
+											checked={
+												data.splashscreen[key] || false
+											}
+											onChange={(e) =>
+												handleNestedChange(
+													e,
+													"splashscreen",
+													key,
+													null,
+													true
+												)
+											}
+											className="absolute w-8 h-4 transition-colors duration-300 rounded-full appearance-none cursor-pointer peer bg-blue-gray-100 checked:bg-gray-900 peer-checked:border-gray-900 peer-checked:before:bg-gray-900"
+										/>
+										<label
+											htmlFor={`switch-${key}`}
+											className="before:content[''] absolute top-2/4 -left-1 h-5 w-5 -translate-y-2/4 cursor-pointer rounded-full border border-blue-gray-100 bg-white shadow-md transition-all duration-300 before:absolute before:top-2/4 before:left-2/4 before:block before:h-10 before:w-10 before:-translate-y-2/4 before:-translate-x-2/4 before:rounded-full before:bg-blue-gray-500 before:opacity-0 before:transition-opacity hover:before:opacity-10 peer-checked:translate-x-full peer-checked:border-gray-900 peer-checked:before:bg-gray-900"
+										>
+											<div
+												className="inline-block p-5 rounded-full top-2/4 left-2/4 -translate-x-2/4 -translate-y-2/4"
+												data-ripple-dark="true"
+											></div>
+										</label>
+									</div>
+								</div>
+							))}
+					</div>
+				</div>
 
 				{/* Custom Icons */}
-				<div className="grid pt-3 gap-y-3">
+				<div className="grid gap-3">
 					<Typography variant="h5">Custom Icons</Typography>
 					<div className="grid gap-y-4">
 						{data.custom_icons &&
@@ -402,13 +434,17 @@ const Dashboard = () => {
 																`Link ${
 																	index + 1
 																}`) ||
-																data
+																(data
 																	.custom_icons[
 																	key
 																].popup[
 																	popupKey
 																].type ===
-																	"pdf" && `PDF ${index + 1}`}
+																	"pdf" &&
+																	`PDF ${
+																		index +
+																		1
+																	}`)}
 														</Typography>
 
 														{/* Visibility Checkbox */}
