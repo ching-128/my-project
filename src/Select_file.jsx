@@ -38,8 +38,7 @@ const Select_file = ({ onFilesSelected }) => {
 				{...getRootProps()}
 				className={`w-70vw h-50vh p-4 border-2 border-dashed ${
 					isDragActive ? "border-blue-500" : "border-gray-300"
-				} cursor-pointer grid place-content-center`}
-			>
+				} cursor-pointer grid place-content-center`}>
 				<input {...getInputProps()} />
 				<Typography color="gray" variant="h6" className="text-center">
 					{isDragActive
