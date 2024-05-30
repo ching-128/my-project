@@ -1,4 +1,3 @@
-// src/jsonDataSlice.js
 import { createSlice } from '@reduxjs/toolkit';
 
 const jsonDataSlice = createSlice({

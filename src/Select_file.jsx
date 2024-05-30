@@ -19,7 +19,7 @@ const Select_file = ({ onFilesSelected }) => {
 				navigate("/dashboard");
 			};
 			fileReader.readAsText(acceptedFiles[0]);
-			onFilesSelected(acceptedFiles); // Call the callback function
+			onFilesSelected(acceptedFiles);
 		},
 		[navigate, dispatch, onFilesSelected]
 	);
