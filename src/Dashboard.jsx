@@ -9,14 +9,24 @@ import {
 	Typography,
 	Select,
 	Option,
+	IconButton,
 } from "@material-tailwind/react";
 import { useNavigate } from "react-router-dom";
+import { CreateIcon, CutIcon, EditIcon, SaveIcon } from "./components/Icon";
 
 const Dashboard = () => {
 	const projectData = useSelector((state) => state.jsonData.project_data);
 	const [data, setData] = useState({});
 	const dispatch = useDispatch();
 	const navigate = useNavigate();
+
+	const [editMode, setEditMode] = useState(null);
+	const [editKey, setEditKey] = useState("");
+	const [editValue, setEditValue] = useState("");
+
+	const [newKey, setNewKey] = useState("");
+	const [newValue, setNewValue] = useState("");
+	const [isAdding, setIsAdding] = useState(false);
 
 	useEffect(() => {
 		if (projectData) {
@@ -25,6 +35,66 @@ const Dashboard = () => {
 			navigate("/");
 		}
 	}, [navigate, projectData]);
+
+	const handleAddNewTag = () => {
+		if (newKey.trim() && newValue.trim()) {
+			setData((prevData) => ({
+				...prevData,
+				available_tags: {
+					...prevData.available_tags,
+					[newKey]: newValue,
+				},
+			}));
+			setNewKey("");
+			setNewValue("");
+			setIsAdding(false);
+		}
+	};
+
+	const handleRemoveTag = (key) => {
+		setData((prevData) => {
+			const updatedTags = { ...prevData.available_tags };
+			delete updatedTags[key];
+			return {
+				...prevData,
+				available_tags: updatedTags,
+			};
+		});
+	};
+
+	const handleEditTag = (key) => {
+		setEditMode(key);
+		setEditKey(key);
+		setEditValue(data.available_tags[key]);
+	};
+
+	const handleSaveTag = (oldKey) => {
+		setData((prevData) => {
+			const updatedTags = { ...prevData.available_tags };
+			if (editKey !== oldKey) {
+				delete updatedTags[oldKey];
+			}
+			updatedTags[editKey] = editValue;
+			return {
+				...prevData,
+				available_tags: updatedTags,
+			};
+		});
+		setEditMode(null);
+		setEditKey("");
+		setEditValue("");
+	};
+
+	const handleDownload = () => {
+		const element = document.createElement("a");
+		const file = new Blob([JSON.stringify(data)], {
+			type: "text/plain",
+		});
+		element.href = URL.createObjectURL(file);
+		element.download = "project.json";
+		document.body.appendChild(element); // Required for this to work in FireFox
+		element.click();
+	};
 
 	const handleChange = (e) => {
 		const { name, value } = e.target;
@@ -873,28 +943,135 @@ const Dashboard = () => {
 				</div>
 
 				{/* Available Tags */}
-				<Typography variant="h5" className="mt-4 mb-2">
-					Available Tags
-				</Typography>
-				{data.available_tags &&
-					Object.keys(data.available_tags).map((key, index) => (
-						<div key={`${key}-${index}`} className="mb-4">
-							<Input
-								type="text"
-								label={
-									key.charAt(0).toUpperCase() + key.slice(1)
-								}
-								name={key}
-								value={data.available_tags[key] || ""}
-								onChange={(e) =>
-									handleNestedChange(e, "available_tags", key)
-								}
-							/>
-						</div>
-					))}
-				<Button type="submit" color="blue">
-					Save Changes
-				</Button>
+				<div className="grid gap-3">
+					<Typography variant="h5" className="mt-4 mb-2">
+						Available Tags
+					</Typography>
+					<div className="flex items-center gap-2 flex-wrap">
+						{data.available_tags &&
+							Object.keys(data.available_tags).map(
+								(key, index) => (
+									<div
+										key={`${key}-${index}`}
+										className="w-max p-2 flex items-center gap-2 bg-blue-gray-100 rounded-lg">
+										{editMode === key ? (
+											<>
+												<Input
+													type="text"
+													value={editKey}
+													onChange={(e) =>
+														setEditKey(
+															e.target.value
+														)
+													}
+													className="w-full"
+												/>
+												<span>:</span>
+												<Input
+													type="text"
+													value={editValue}
+													onChange={(e) =>
+														setEditValue(
+															e.target.value
+														)
+													}
+													className="w-full"
+												/>
+												<IconButton
+													color="green"
+													className="min-w-[40px]"
+													onClick={() =>
+														handleSaveTag(key)
+													}>
+													<SaveIcon />
+												</IconButton>
+											</>
+										) : (
+											<>
+												<span>
+													<strong>{key}</strong>:{" "}
+													{data.available_tags[key]}
+												</span>
+												<IconButton
+													color="green"
+													onClick={() =>
+														handleEditTag(key)
+													}>
+													<EditIcon />
+												</IconButton>
+												<IconButton
+													color="red"
+													onClick={() =>
+														handleRemoveTag(key)
+													}>
+													<CutIcon />
+												</IconButton>
+											</>
+										)}
+									</div>
+								)
+							)}
+						{/* add new tag */}
+						{isAdding && (
+							<div className="w-max p-2 flex items-center gap-2 bg-blue-gray-100 rounded-lg">
+								<Input
+									type="text"
+									placeholder="New Key"
+									value={newKey}
+									onChange={(e) => setNewKey(e.target.value)}
+									className="w-full"
+								/>
+								<span>:</span>
+								<Input
+									type="text"
+									placeholder="New Value"
+									value={newValue}
+									onChange={(e) =>
+										setNewValue(e.target.value)
+									}
+									className="w-full"
+								/>
+								<IconButton
+									color="green"
+									className="min-w-[40px]"
+									onClick={handleAddNewTag}>
+									<SaveIcon />
+								</IconButton>
+								<IconButton
+									color="red"
+									className="min-w-[40px]"
+									onClick={()=> setIsAdding(false)}>
+									<CutIcon />
+								</IconButton>
+							</div>
+						)}
+						<IconButton
+							color="green"
+							className="p-7"
+							onClick={() => setIsAdding(true)}>
+							<CreateIcon />
+						</IconButton>
+					</div>
+				</div>
+				<div className="w-full my-3 flex justify-between items-center">
+					{/* save button */}
+					<Button type="submit" color="blue">
+						Save Changes
+					</Button>
+
+					{/* upload button */}
+					<div className="flex items-center justify-center gap-3">
+						<Button
+							type="buttonn"
+							color="blue"
+							onClick={handleDownload}>
+							Download
+						</Button>
+						<Button type="button" color="blue">
+							Upload
+						</Button>
+					</div>
+				</div>
 			</form>
 		</Card>
 	);
