@@ -33,6 +33,10 @@ const Dashboard = () => {
 	const [newValue, setNewValue] = useState("");
 	const [isAdding, setIsAdding] = useState(false);
 
+	const [isAddingContactLink, setIsAddingContactLink] = useState(false);
+	const [newContactKey, setNewContactKey] = useState("");
+	const [newContactValue, setNewContactValue] = useState("");
+
 	useEffect(() => {
 		if (project_data) {
 			setData(project_data);
@@ -40,6 +44,21 @@ const Dashboard = () => {
 			navigate("/");
 		}
 	}, [navigate, project_data]);
+
+	const handleAddNewContactLink = () => {
+		if (newContactKey && newContactValue) {
+			setData((prevData) => ({
+				...prevData,
+				contact_links: {
+					...prevData.contact_links,
+					[newContactKey]: [newContactValue],
+				},
+			}));
+			setIsAddingContactLink(false);
+			setNewContactKey("");
+			setNewContactValue("");
+		}
+	};
 
 	const handleAddNewTag = () => {
 		if (newKey.trim() && newValue.trim()) {
@@ -92,7 +111,7 @@ const Dashboard = () => {
 
 	const handleDownload = () => {
 		const element = document.createElement("a");
-		const file = new Blob([JSON.stringify({project_data})], {
+		const file = new Blob([JSON.stringify({ project_data })], {
 			type: "text/plain",
 		});
 		element.href = URL.createObjectURL(file);
@@ -216,7 +235,7 @@ const Dashboard = () => {
 										name="aboutus_description"
 										value={data.aboutus_description || ""}
 										onChange={handleChange}
-										className="peer h-full min-h-[150px] w-full resize-none rounded-md border border-blue-gray-200 border-t-transparent bg-transparent px-3 py-3 font-sans text-sm font-normal text-blue-gray-700 outline outline-0 transition-all placeholder-shown:border placeholder-shown:border-blue-gray-200 placeholder-shown:border-t-blue-gray-200 focus:border-2 focus:border-gray-900 focus:border-t-transparent focus:outline-0 disabled:resize-none disabled:border-0 disabled:bg-blue-gray-50"
+										className="peer h-full min-h-[150px] max-h-[300px] w-full resize-y rounded-md border border-blue-gray-200 border-t-transparent bg-transparent px-4 py-4 font-sans text-sm font-normal text-blue-gray-700 outline outline-0 transition-all placeholder-shown:border placeholder-shown:border-blue-gray-200 placeholder-shown:border-t-blue-gray-200 focus:border-2 focus:border-gray-900 focus:border-t-transparent focus:outline-0 disabled:resize-none disabled:border-0 disabled:bg-blue-gray-50 scrollbar-hide"
 										placeholder=" "></textarea>
 									<label className="before:content[' '] after:content[' '] pointer-events-none absolute left-0 -top-1.5 flex h-full w-full select-none text-[11px] font-normal leading-tight text-blue-gray-400 transition-all before:pointer-events-none before:mt-[6.5px] before:mr-1 before:box-border before:block before:h-1.5 before:w-2.5 before:rounded-tl-md before:border-t before:border-l before:border-blue-gray-200 before:transition-all after:pointer-events-none after:mt-[6.5px] after:ml-1 after:box-border after:block after:h-1.5 after:w-2.5 after:flex-grow after:rounded-tr-md after:border-t after:border-r after:border-blue-gray-200 after:transition-all peer-placeholder-shown:text-sm peer-placeholder-shown:leading-[4.1] peer-placeholder-shown:text-blue-gray-500 peer-placeholder-shown:before:border-transparent peer-placeholder-shown:after:border-transparent peer-focus:text-[11px] peer-focus:leading-tight peer-focus:text-gray-900 peer-focus:before:border-t-2 peer-focus:before:border-l-2 peer-focus:before:border-gray-900 peer-focus:after:border-t-2 peer-focus:after:border-r-2 peer-focus:after:border-gray-900 peer-disabled:text-transparent peer-disabled:before:border-transparent peer-disabled:after:border-transparent peer-disabled:peer-placeholder-shown:text-blue-gray-500">
 										About Us Description
@@ -227,37 +246,160 @@ const Dashboard = () => {
 								<Typography variant="h5" className="mt-4 mb-2">
 									Social Links
 								</Typography>
-								{data.social_links &&
-									Object.keys(data.social_links).map(
-										(key, index) => (
-											<div
-												key={`${key}-${index}`}
-												className="w-96 mb-4">
-												<Input
-													type="text"
-													label={
-														key
+								<div className="grid gap-y-4">
+									{data.social_links &&
+										Object.keys(data.social_links).map(
+											(key, index) => (
+												<div
+													key={`${key}-${index}`}
+													className="flex items-center content-start gap-x-4">
+													<Typography
+														variant="h6"
+														className="min-w-[150px]">
+														{key
 															.charAt(0)
 															.toUpperCase() +
-														key.slice(1)
-													}
-													name={key}
-													value={
-														data.social_links[
 															key
-														] || ""
-													}
-													onChange={(e) =>
-														handleNestedChange(
-															e,
-															"social_links",
-															key
-														)
-													}
-												/>
-											</div>
-										)
-									)}
+																.slice(1)
+																.replace(
+																	/_/g,
+																	" "
+																)}
+													</Typography>
+													<div className="flex items-center content-start gap-x-4">
+														{/* Visibility Checkbox */}
+														<div className="relative inline-block w-8 h-4 rounded-full cursor-pointer">
+															<input
+																id={`social_links-${index}`}
+																type="checkbox"
+																label={
+																	key
+																		.charAt(
+																			0
+																		)
+																		.toUpperCase() +
+																	key.slice(1)
+																}
+																name="visibility"
+																checked={
+																	data
+																		.social_links[
+																		key
+																	]
+																		.visibility ||
+																	false
+																}
+																onChange={(e) =>
+																	handleNestedChange(
+																		e,
+																		"social_links",
+																		key,
+																		"visibility",
+																		true
+																	)
+																}
+																className="absolute w-8 h-4 transition-colors duration-300 rounded-full appearance-none cursor-pointer peer bg-blue-gray-100 checked:bg-gray-900 peer-checked:border-gray-900 peer-checked:before:bg-gray-900"
+															/>
+															<label
+																htmlFor={`social_links-${index}`}
+																className="before:content[''] absolute top-2/4 -left-1 h-5 w-5 -translate-y-2/4 cursor-pointer rounded-full border border-blue-gray-100 bg-white shadow-md transition-all duration-300 before:absolute before:top-2/4 before:left-2/4 before:block before:h-10 before:w-10 before:-translate-y-2/4 before:-translate-x-2/4 before:rounded-full before:bg-blue-gray-500 before:opacity-0 before:transition-opacity hover:before:opacity-10 peer-checked:translate-x-full peer-checked:border-gray-900 peer-checked:before:bg-gray-900">
+																<div
+																	className="inline-block p-5 rounded-full top-2/4 left-2/4 -translate-x-2/4 -translate-y-2/4"
+																	data-ripple-dark="true"></div>
+															</label>
+														</div>
+
+														{/* Type Select */}
+														<div className="w-48">
+															<Select
+																name="type"
+																label="Select Type"
+																value={
+																	data
+																		.social_links[
+																		key
+																	].type || ""
+																}
+																onChange={(e) =>
+																	handleNestedChange(
+																		e,
+																		"social_links",
+																		key,
+																		"type"
+																	)
+																}
+																disabled>
+																<Option value="contact">
+																	Contact
+																</Option>
+																<Option value="url">
+																	URL
+																</Option>
+																<Option value="gallery">
+																	Gallery
+																</Option>
+																<Option value="video">
+																	Video
+																</Option>
+																<Option value="pdf">
+																	PDF
+																</Option>
+																<Option value="pop-up">
+																	Pop-up
+																</Option>
+															</Select>
+														</div>
+
+														{/* Label Input */}
+														<div className="w-48">
+															<Input
+																type="text"
+																label="Label"
+																name="label"
+																value={
+																	data
+																		.social_links[
+																		key
+																	].label ||
+																	""
+																}
+																onChange={(e) =>
+																	handleNestedChange(
+																		e,
+																		"social_links",
+																		key,
+																		"label"
+																	)
+																}
+															/>
+														</div>
+
+														<div className="w-96">
+															<Input
+																type="text"
+																label="URL"
+																name="url"
+																value={
+																	data
+																		.social_links[
+																		key
+																	].url || ""
+																}
+																onChange={(e) =>
+																	handleNestedChange(
+																		e,
+																		"social_links",
+																		key,
+																		"url"
+																	)
+																}
+															/>
+														</div>
+													</div>
+												</div>
+											)
+										)}
+								</div>
 
 								{/* Contact Links */}
 								<Typography variant="h5" className="mt-4 mb-2">
@@ -265,35 +407,46 @@ const Dashboard = () => {
 								</Typography>
 								{data.contact_links &&
 									Object.keys(data.contact_links).map(
-										(key, index) => (
-											<div
-												key={`${key}-${index}`}
-												className="w-96 mb-4">
-												<Input
-													type="text"
-													label={
-														key
-															.charAt(0)
-															.toUpperCase() +
-														key.slice(1)
-													}
-													name={key}
-													value={
-														data.contact_links[
+										(key, index) => {
+											// console.log(key);
+											return (
+												<div
+													key={`${key}-${index}`}
+													className="w-48 mb-4">
+													<Input
+														type="text"
+														label={
 															key
-														][0] || ""
-													}
-													onChange={(e) =>
-														handleNestedChange(
-															e,
-															"contact_links",
-															key
-														)
-													}
-												/>
-											</div>
-										)
+																.charAt(0)
+																.toUpperCase() +
+															key.slice(1)
+														}
+														name={key}
+														value={
+															data.contact_links[
+																key
+															][0] || ""
+														}
+														onChange={(e) =>
+															handleNestedChange(
+																e,
+																"contact_links",
+																key
+															)
+														}
+													/>
+												</div>
+											);
+										}
 									)}
+
+								<IconButton
+									color="green"
+									className="p-7"
+									onClick={() => setIsAdding(true)}>
+									<CreateIcon />
+								</IconButton>
+								{/* Contact Links */}
 							</TabPanel>
 							<TabPanel key="Custom_icons" value="Custom_icons">
 								<div className="grid gap-3">
