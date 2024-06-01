@@ -33,9 +33,10 @@ const Dashboard = () => {
 	const [newValue, setNewValue] = useState("");
 	const [isAdding, setIsAdding] = useState(false);
 
-	const [isAddingContactLink, setIsAddingContactLink] = useState(false);
-	const [newContactKey, setNewContactKey] = useState("");
-	const [newContactValue, setNewContactValue] = useState("");
+	const [newEmail, setNewEmail] = useState("");
+	const [newPhone, setNewPhone] = useState("");
+	const [isAddingEmail, setIsAddingEmail] = useState(false);
+	const [isAddingPhone, setIsAddingPhone] = useState(false);
 
 	useEffect(() => {
 		if (project_data) {
@@ -45,19 +46,44 @@ const Dashboard = () => {
 		}
 	}, [navigate, project_data]);
 
-	const handleAddNewContactLink = () => {
-		if (newContactKey && newContactValue) {
+	const handleAddEmail = () => {
+		if (newEmail) {
 			setData((prevData) => ({
 				...prevData,
 				contact_links: {
 					...prevData.contact_links,
-					[newContactKey]: [newContactValue],
+					email: [...prevData.contact_links.email, newEmail],
 				},
 			}));
-			setIsAddingContactLink(false);
-			setNewContactKey("");
-			setNewContactValue("");
+			setNewEmail("");
+			setIsAddingEmail(false);
 		}
+	};
+
+	const handleAddPhone = () => {
+		if (newPhone) {
+			setData((prevData) => ({
+				...prevData,
+				contact_links: {
+					...prevData.contact_links,
+					phone: [...prevData.contact_links.phone, newPhone],
+				},
+			}));
+			setNewPhone("");
+			setIsAddingPhone(false);
+		}
+	};
+
+	const handleRemoveContactLink = (type, index) => {
+		setData((prevData) => ({
+			...prevData,
+			contact_links: {
+				...prevData.contact_links,
+				[type]: prevData.contact_links[type].filter(
+					(_, i) => i !== index
+				),
+			},
+		}));
 	};
 
 	const handleAddNewTag = () => {
@@ -211,245 +237,417 @@ const Dashboard = () => {
 								unmount: { opacity: 0 },
 							}}>
 							<TabPanel key="Project_data" value="Project_data">
-								<div className="mb-4">
-									<Input
-										type="text"
-										label="Project Title"
-										name="project_title"
-										value={data.project_title || ""}
-										onChange={handleChange}
-									/>
-								</div>
-								<div className="mb-4">
-									<Input
-										type="text"
-										label="About Us Title"
-										name="aboutus_title"
-										value={data.aboutus_title || ""}
-										onChange={handleChange}
-									/>
-								</div>
-								<div className="relative w-full min-w-[200px]">
-									<textarea
-										label="About Us Description"
-										name="aboutus_description"
-										value={data.aboutus_description || ""}
-										onChange={handleChange}
-										className="peer h-full min-h-[150px] max-h-[300px] w-full resize-y rounded-md border border-blue-gray-200 border-t-transparent bg-transparent px-4 py-4 font-sans text-sm font-normal text-blue-gray-700 outline outline-0 transition-all placeholder-shown:border placeholder-shown:border-blue-gray-200 placeholder-shown:border-t-blue-gray-200 focus:border-2 focus:border-gray-900 focus:border-t-transparent focus:outline-0 disabled:resize-none disabled:border-0 disabled:bg-blue-gray-50 scrollbar-hide"
-										placeholder=" "></textarea>
-									<label className="before:content[' '] after:content[' '] pointer-events-none absolute left-0 -top-1.5 flex h-full w-full select-none text-[11px] font-normal leading-tight text-blue-gray-400 transition-all before:pointer-events-none before:mt-[6.5px] before:mr-1 before:box-border before:block before:h-1.5 before:w-2.5 before:rounded-tl-md before:border-t before:border-l before:border-blue-gray-200 before:transition-all after:pointer-events-none after:mt-[6.5px] after:ml-1 after:box-border after:block after:h-1.5 after:w-2.5 after:flex-grow after:rounded-tr-md after:border-t after:border-r after:border-blue-gray-200 after:transition-all peer-placeholder-shown:text-sm peer-placeholder-shown:leading-[4.1] peer-placeholder-shown:text-blue-gray-500 peer-placeholder-shown:before:border-transparent peer-placeholder-shown:after:border-transparent peer-focus:text-[11px] peer-focus:leading-tight peer-focus:text-gray-900 peer-focus:before:border-t-2 peer-focus:before:border-l-2 peer-focus:before:border-gray-900 peer-focus:after:border-t-2 peer-focus:after:border-r-2 peer-focus:after:border-gray-900 peer-disabled:text-transparent peer-disabled:before:border-transparent peer-disabled:after:border-transparent peer-disabled:peer-placeholder-shown:text-blue-gray-500">
-										About Us Description
-									</label>
-								</div>
-
-								{/* Social Links */}
-								<Typography variant="h5" className="mt-4 mb-2">
-									Social Links
-								</Typography>
-								<div className="grid gap-y-4">
-									{data.social_links &&
-										Object.keys(data.social_links).map(
-											(key, index) => (
-												<div
-													key={`${key}-${index}`}
-													className="flex items-center content-start gap-x-4">
-													<Typography
-														variant="h6"
-														className="min-w-[150px]">
-														{key
-															.charAt(0)
-															.toUpperCase() +
-															key
-																.slice(1)
-																.replace(
-																	/_/g,
-																	" "
-																)}
-													</Typography>
-													<div className="flex items-center content-start gap-x-4">
-														{/* Visibility Checkbox */}
-														<div className="relative inline-block w-8 h-4 rounded-full cursor-pointer">
-															<input
-																id={`social_links-${index}`}
-																type="checkbox"
-																label={
-																	key
-																		.charAt(
-																			0
-																		)
-																		.toUpperCase() +
-																	key.slice(1)
-																}
-																name="visibility"
-																checked={
-																	data
-																		.social_links[
-																		key
-																	]
-																		.visibility ||
-																	false
-																}
-																onChange={(e) =>
-																	handleNestedChange(
-																		e,
-																		"social_links",
-																		key,
-																		"visibility",
-																		true
-																	)
-																}
-																className="absolute w-8 h-4 transition-colors duration-300 rounded-full appearance-none cursor-pointer peer bg-blue-gray-100 checked:bg-gray-900 peer-checked:border-gray-900 peer-checked:before:bg-gray-900"
-															/>
-															<label
-																htmlFor={`social_links-${index}`}
-																className="before:content[''] absolute top-2/4 -left-1 h-5 w-5 -translate-y-2/4 cursor-pointer rounded-full border border-blue-gray-100 bg-white shadow-md transition-all duration-300 before:absolute before:top-2/4 before:left-2/4 before:block before:h-10 before:w-10 before:-translate-y-2/4 before:-translate-x-2/4 before:rounded-full before:bg-blue-gray-500 before:opacity-0 before:transition-opacity hover:before:opacity-10 peer-checked:translate-x-full peer-checked:border-gray-900 peer-checked:before:bg-gray-900">
-																<div
-																	className="inline-block p-5 rounded-full top-2/4 left-2/4 -translate-x-2/4 -translate-y-2/4"
-																	data-ripple-dark="true"></div>
-															</label>
-														</div>
-
-														{/* Type Select */}
-														<div className="w-48">
-															<Select
-																name="type"
-																label="Select Type"
-																value={
-																	data
-																		.social_links[
-																		key
-																	].type || ""
-																}
-																onChange={(e) =>
-																	handleNestedChange(
-																		e,
-																		"social_links",
-																		key,
-																		"type"
-																	)
-																}
-																disabled>
-																<Option value="contact">
-																	Contact
-																</Option>
-																<Option value="url">
-																	URL
-																</Option>
-																<Option value="gallery">
-																	Gallery
-																</Option>
-																<Option value="video">
-																	Video
-																</Option>
-																<Option value="pdf">
-																	PDF
-																</Option>
-																<Option value="pop-up">
-																	Pop-up
-																</Option>
-															</Select>
-														</div>
-
-														{/* Label Input */}
-														<div className="w-48">
-															<Input
-																type="text"
-																label="Label"
-																name="label"
-																value={
-																	data
-																		.social_links[
-																		key
-																	].label ||
-																	""
-																}
-																onChange={(e) =>
-																	handleNestedChange(
-																		e,
-																		"social_links",
-																		key,
-																		"label"
-																	)
-																}
-															/>
-														</div>
-
-														<div className="w-96">
-															<Input
-																type="text"
-																label="URL"
-																name="url"
-																value={
-																	data
-																		.social_links[
-																		key
-																	].url || ""
-																}
-																onChange={(e) =>
-																	handleNestedChange(
-																		e,
-																		"social_links",
-																		key,
-																		"url"
-																	)
-																}
-															/>
-														</div>
-													</div>
-												</div>
-											)
-										)}
-								</div>
-
-								{/* Contact Links */}
-								<Typography variant="h5" className="mt-4 mb-2">
-									Contact Links
-								</Typography>
-								{data.contact_links &&
-									Object.keys(data.contact_links).map(
-										(key, index) => {
-											// console.log(key);
-											return (
-												<div
-													key={`${key}-${index}`}
-													className="w-48 mb-4">
-													<Input
-														type="text"
-														label={
-															key
+								<div>
+									<div className="mb-4">
+										<Input
+											type="text"
+											label="Project Title"
+											name="project_title"
+											value={data.project_title || ""}
+											onChange={handleChange}
+										/>
+									</div>
+									<div className="mb-4">
+										<Input
+											type="text"
+											label="About Us Title"
+											name="aboutus_title"
+											value={data.aboutus_title || ""}
+											onChange={handleChange}
+										/>
+									</div>
+									<div className="relative min-w-[200px]">
+										<textarea
+											label="About Us Description"
+											name="aboutus_description"
+											value={
+												data.aboutus_description || ""
+											}
+											onChange={handleChange}
+											className="peer h-full min-h-[150px] max-h-[300px] w-full resize-y rounded-md border border-blue-gray-200 border-t-transparent bg-transparent px-4 py-4 font-sans text-sm font-normal text-blue-gray-700 outline outline-0 transition-all placeholder-shown:border placeholder-shown:border-blue-gray-200 placeholder-shown:border-t-blue-gray-200 focus:border-2 focus:border-gray-900 focus:border-t-transparent focus:outline-0 disabled:resize-none disabled:border-0 disabled:bg-blue-gray-50 scrollbar-hide"
+											placeholder=" "></textarea>
+										<label className="before:content[' '] after:content[' '] pointer-events-none absolute left-0 -top-1.5 flex h-full w-full select-none text-[11px] font-normal leading-tight text-blue-gray-400 transition-all before:pointer-events-none before:mt-[6.5px] before:mr-1 before:box-border before:block before:h-1.5 before:w-2.5 before:rounded-tl-md before:border-t before:border-l before:border-blue-gray-200 before:transition-all after:pointer-events-none after:mt-[6.5px] after:ml-1 after:box-border after:block after:h-1.5 after:w-2.5 after:flex-grow after:rounded-tr-md after:border-t after:border-r after:border-blue-gray-200 after:transition-all peer-placeholder-shown:text-sm peer-placeholder-shown:leading-[4.1] peer-placeholder-shown:text-blue-gray-500 peer-placeholder-shown:before:border-transparent peer-placeholder-shown:after:border-transparent peer-focus:text-[11px] peer-focus:leading-tight peer-focus:text-gray-900 peer-focus:before:border-t-2 peer-focus:before:border-l-2 peer-focus:before:border-gray-900 peer-focus:after:border-t-2 peer-focus:after:border-r-2 peer-focus:after:border-gray-900 peer-disabled:text-transparent peer-disabled:before:border-transparent peer-disabled:after:border-transparent peer-disabled:peer-placeholder-shown:text-blue-gray-500">
+											About Us Description
+										</label>
+									</div>
+									{/* Social Links */}
+									<div className="my-4">
+										<Typography
+											variant="h5"
+											className="mt-4 mb-2">
+											Social Links
+										</Typography>
+										<div className="grid gap-y-4">
+											{data.social_links &&
+												Object.keys(
+													data.social_links
+												).map((key, index) => (
+													<div
+														key={`${key}-${index}`}
+														className="flex items-center content-start gap-x-4">
+														<Typography
+															variant="h6"
+															className="min-w-[150px]">
+															{key
 																.charAt(0)
 																.toUpperCase() +
-															key.slice(1)
-														}
-														name={key}
-														value={
-															data.contact_links[
 																key
-															][0] || ""
-														}
-														onChange={(e) =>
-															handleNestedChange(
-																e,
-																"contact_links",
-																key
-															)
-														}
-													/>
-												</div>
-											);
-										}
-									)}
+																	.slice(1)
+																	.replace(
+																		/_/g,
+																		" "
+																	)}
+														</Typography>
+														<div className="flex items-center content-start gap-x-4">
+															{/* Visibility Checkbox */}
+															<div className="relative inline-block w-8 h-4 rounded-full cursor-pointer">
+																<input
+																	id={`social_links-${index}`}
+																	type="checkbox"
+																	label={
+																		key
+																			.charAt(
+																				0
+																			)
+																			.toUpperCase() +
+																		key.slice(
+																			1
+																		)
+																	}
+																	name="visibility"
+																	checked={
+																		data
+																			.social_links[
+																			key
+																		]
+																			.visibility ||
+																		false
+																	}
+																	onChange={(
+																		e
+																	) =>
+																		handleNestedChange(
+																			e,
+																			"social_links",
+																			key,
+																			"visibility",
+																			true
+																		)
+																	}
+																	className="absolute w-8 h-4 transition-colors duration-300 rounded-full appearance-none cursor-pointer peer bg-blue-gray-100 checked:bg-gray-900 peer-checked:border-gray-900 peer-checked:before:bg-gray-900"
+																/>
+																<label
+																	htmlFor={`social_links-${index}`}
+																	className="before:content[''] absolute top-2/4 -left-1 h-5 w-5 -translate-y-2/4 cursor-pointer rounded-full border border-blue-gray-100 bg-white shadow-md transition-all duration-300 before:absolute before:top-2/4 before:left-2/4 before:block before:h-10 before:w-10 before:-translate-y-2/4 before:-translate-x-2/4 before:rounded-full before:bg-blue-gray-500 before:opacity-0 before:transition-opacity hover:before:opacity-10 peer-checked:translate-x-full peer-checked:border-gray-900 peer-checked:before:bg-gray-900">
+																	<div
+																		className="inline-block p-5 rounded-full top-2/4 left-2/4 -translate-x-2/4 -translate-y-2/4"
+																		data-ripple-dark="true"></div>
+																</label>
+															</div>
 
-								<IconButton
-									color="green"
-									className="p-7"
-									onClick={() => setIsAdding(true)}>
-									<CreateIcon />
-								</IconButton>
-								{/* Contact Links */}
+															{/* Type Select */}
+															<div className="w-48">
+																<Select
+																	name="type"
+																	label="Select Type"
+																	value={
+																		data
+																			.social_links[
+																			key
+																		]
+																			.type ||
+																		""
+																	}
+																	onChange={(
+																		e
+																	) =>
+																		handleNestedChange(
+																			e,
+																			"social_links",
+																			key,
+																			"type"
+																		)
+																	}
+																	disabled>
+																	<Option value="contact">
+																		Contact
+																	</Option>
+																	<Option value="url">
+																		URL
+																	</Option>
+																	<Option value="gallery">
+																		Gallery
+																	</Option>
+																	<Option value="video">
+																		Video
+																	</Option>
+																	<Option value="pdf">
+																		PDF
+																	</Option>
+																	<Option value="pop-up">
+																		Pop-up
+																	</Option>
+																</Select>
+															</div>
+
+															{/* Label Input */}
+															<div className="w-48">
+																<Input
+																	type="text"
+																	label="Label"
+																	name="label"
+																	value={
+																		data
+																			.social_links[
+																			key
+																		]
+																			.label ||
+																		""
+																	}
+																	onChange={(
+																		e
+																	) =>
+																		handleNestedChange(
+																			e,
+																			"social_links",
+																			key,
+																			"label"
+																		)
+																	}
+																/>
+															</div>
+
+															<div className="w-96">
+																<Input
+																	type="text"
+																	label="URL"
+																	name="url"
+																	value={
+																		data
+																			.social_links[
+																			key
+																		].url ||
+																		""
+																	}
+																	onChange={(
+																		e
+																	) =>
+																		handleNestedChange(
+																			e,
+																			"social_links",
+																			key,
+																			"url"
+																		)
+																	}
+																/>
+															</div>
+														</div>
+													</div>
+												))}
+										</div>
+									</div>
+									{/* Social Links Ends Here */}
+									{/* Contact Links */}
+									<div className="my-4 grid">
+										<Typography
+											variant="h5"
+											className="mt-4 mb-2">
+											Contact Links
+										</Typography>
+										<div className="flex flex-col gap-4">
+											{/* Email Section */}
+											<div className="flex items-center justify-start gap-2">
+												<Typography
+													variant="h6"
+													className="min-w-[150px]">
+													Email
+												</Typography>
+												{data.contact_links?.email?.map(
+													(email, index) => (
+														<div
+															key={`email-${index}`}
+															className="w-max flex items-center gap-2 rounded-lg">
+															<Input
+																type="text"
+																value={email}
+																label="Email ID"
+																className="min-48 bg-white"
+																onChange={(e) =>
+																	handleNestedChange(
+																		e,
+																		"contact_links",
+																		`email.${index}`
+																	)
+																}
+																onBlur={() =>
+																	handleSaveTag(
+																		`email.${index}`
+																	)
+																}
+															/>
+															<IconButton
+																color="red"
+																className="min-w-[40px]"
+																onClick={() =>
+																	handleRemoveContactLink(
+																		"email",
+																		index
+																	)
+																}>
+																<CutIcon />
+															</IconButton>
+														</div>
+													)
+												)}
+												{isAddingEmail &&
+													data.contact_links?.email
+														?.length <= 1 && (
+														<div className="flex items-center gap-2 rounded-lg">
+															<Input
+																type="text"
+																value={newEmail}
+																label="New Email ID"
+																onChange={(e) =>
+																	setNewEmail(
+																		e.target
+																			.value
+																	)
+																}
+																className="w-96"
+															/>
+															<IconButton
+																color="red"
+																className="min-w-[40px]"
+																onClick={() =>
+																	setIsAddingEmail(
+																		false
+																	)
+																}>
+																<CutIcon />
+															</IconButton>
+															<IconButton
+																color="green"
+																className="min-w-[40px]"
+																onClick={
+																	handleAddEmail
+																}>
+																<SaveIcon />
+															</IconButton>
+														</div>
+													)}
+												{data.contact_links?.email
+													?.length <= 1 &&
+													!isAddingEmail && (
+														<IconButton
+															color="green"
+															onClick={() =>
+																setIsAddingEmail(
+																	true
+																)
+															}>
+															<CreateIcon />
+														</IconButton>
+													)}
+											</div>
+
+											{/* Phone Section */}
+											<div className="flex items-center justify-start gap-2">
+												<Typography
+													variant="h6"
+													className="min-w-[150px]">
+													Phone
+												</Typography>
+												{data.contact_links?.phone?.map(
+													(phone, index) => (
+														<div
+															key={`phone-${index}`}
+															className="w-max flex items-center gap-2 rounded-lg">
+															<Input
+																type="text"
+																value={phone}
+																label="Phone Number"
+																className="min-48 bg-white"
+																onChange={(e) =>
+																	handleNestedChange(
+																		e,
+																		"contact_links",
+																		`phone.${index}`
+																	)
+																}
+																onBlur={() =>
+																	handleSaveTag(
+																		`phone.${index}`
+																	)
+																}
+															/>
+															<IconButton
+																color="red"
+																className="min-w-[40px]"
+																onClick={() =>
+																	handleRemoveContactLink(
+																		"phone",
+																		index
+																	)
+																}>
+																<CutIcon />
+															</IconButton>
+														</div>
+													)
+												)}
+												{isAddingPhone && (
+													<div className="flex items-center gap-2 rounded-lg">
+														<Input
+															type="text"
+															className="min-48 bg-white"
+															label="New Phone Number"
+															value={newPhone}
+															onChange={(e) =>
+																setNewPhone(
+																	e.target
+																		.value
+																)
+															}
+														/>
+														<IconButton
+															color="red"
+															className="min-w-[40px]"
+															onClick={() =>
+																setIsAddingPhone(
+																	false
+																)
+															}>
+															<CutIcon />
+														</IconButton>
+														<IconButton
+															color="green"
+															className="min-w-[40px]"
+															onClick={
+																handleAddPhone
+															}>
+															<SaveIcon />
+														</IconButton>
+													</div>
+												)}
+												{data.contact_links?.phone
+													?.length <= 1 &&
+													!isAddingPhone && (
+														<IconButton
+															color="green"
+															onClick={() =>
+																setIsAddingPhone(
+																	true
+																)
+															}>
+															<CreateIcon />
+														</IconButton>
+													)}
+											</div>
+										</div>
+									</div>
+								</div>
 							</TabPanel>
 							<TabPanel key="Custom_icons" value="Custom_icons">
-								<div className="grid gap-3">
+								<div className="grid gap-3 mb-4">
 									<Typography variant="h5">
 										Custom Icons
 									</Typography>
@@ -861,55 +1059,48 @@ const Dashboard = () => {
 																									.type ||
 																								""
 																							}
-																							onChange={
-																								(
-																									e
-																								) =>
-																									setData(
-																										(
-																											prevData
-																										) => {
-																											return {
-																												...prevData,
-																												custom_icons:
-																													{
-																														...prevData.custom_icons,
-																														[key]: {
+																							onChange={(
+																								e
+																							) =>
+																								setData(
+																									(
+																										prevData
+																									) => {
+																										return {
+																											...prevData,
+																											custom_icons:
+																												{
+																													...prevData.custom_icons,
+																													[key]: {
+																														...prevData
+																															.custom_icons[
+																															key
+																														],
+																														popup: {
 																															...prevData
 																																.custom_icons[
 																																key
-																															],
-																															popup: {
-																																...prevData
-																																	.custom_icons[
-																																	key
-																																]
-																																	.popup,
-																																[popupKey]:
-																																	{
-																																		...prevData
-																																			.custom_icons[
-																																			key
-																																		]
-																																			.popup[
-																																			popupKey
-																																		],
-																																		type: e
-																																			.target
-																																			.value,
-																																	},
-																															},
+																															]
+																																.popup,
+																															[popupKey]:
+																																{
+																																	...prevData
+																																		.custom_icons[
+																																		key
+																																	]
+																																		.popup[
+																																		popupKey
+																																	],
+																																	type: e
+																																		.target
+																																		.value,
+																																},
 																														},
 																													},
-																											};
-																										}
-																									)
-																								// handleNestedChange(
-																								// 	e,
-																								// 	"custom_icons",
-																								// 	key,
-																								// 	`popup.${popupKey}.type`
-																								// )
+																												},
+																										};
+																									}
+																								)
 																							}
 																							disabled>
 																							<Option value="url">
@@ -1294,7 +1485,7 @@ const Dashboard = () => {
 																	true
 																)
 															}
-															className="absolute w-8 h-4 transition-colors duration-300 rounded-full appearance-none cursor-pointer peer bg-blue-gray-100 checked:bg-gray-900 peer-checked:border-gray-900 peer-checked:before:bg-gray-900"
+															className="absolute w-8 h-4 transition-colors duration-300 rounded-full appearance-none cursor-pointer peer bg-blue-gray-50 checked:bg-gray-900 peer-checked:border-gray-900 peer-checked:before:bg-gray-900"
 														/>
 														<label
 															htmlFor={`switch-${key}`}
@@ -1323,12 +1514,13 @@ const Dashboard = () => {
 											).map((key, index) => (
 												<div
 													key={`${key}-${index}`}
-													className="w-max p-2 flex items-center gap-2 bg-blue-gray-100 rounded-lg">
+													className="w-max p-2 flex items-center gap-2 bg-blue-gray-50 rounded-lg">
 													{editMode === key ? (
 														<>
 															<Input
 																type="text"
 																value={editKey}
+																label="Edit Tag Name"
 																onChange={(e) =>
 																	setEditKey(
 																		e.target
@@ -1343,6 +1535,7 @@ const Dashboard = () => {
 																value={
 																	editValue
 																}
+																label="Edit Title"
 																onChange={(e) =>
 																	setEditValue(
 																		e.target
@@ -1400,10 +1593,10 @@ const Dashboard = () => {
 											))}
 										{/* add new tag */}
 										{isAdding && (
-											<div className="w-max p-2 flex items-center gap-2 bg-blue-gray-100 rounded-lg">
+											<div className="w-max p-2 flex items-center gap-2 bg-blue-gray-50 rounded-lg">
 												<Input
 													type="text"
-													placeholder="New Key"
+													label="New Tag Name"
 													value={newKey}
 													onChange={(e) =>
 														setNewKey(
@@ -1415,7 +1608,7 @@ const Dashboard = () => {
 												<span>:</span>
 												<Input
 													type="text"
-													placeholder="New Value"
+													label="New Title"
 													value={newValue}
 													onChange={(e) =>
 														setNewValue(
@@ -1440,12 +1633,16 @@ const Dashboard = () => {
 												</IconButton>
 											</div>
 										)}
-										<IconButton
-											color="green"
-											className="p-7"
-											onClick={() => setIsAdding(true)}>
-											<CreateIcon />
-										</IconButton>
+										{!isAdding && !editMode && (
+											<IconButton
+												color="green"
+												className="p-7"
+												onClick={() =>
+													setIsAdding(true)
+												}>
+												<CreateIcon />
+											</IconButton>
+										)}
 									</div>
 								</div>
 							</TabPanel>
