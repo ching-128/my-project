@@ -4,7 +4,6 @@ import { useState } from "react";
 import { CreateIcon, CutIcon, SaveIcon } from "../Icon";
 
 const Contact_Links = ({ data, handleNestedChange }) => {
-    console.log(data);
 	const [isAddingEmail, setIsAddingEmail] = useState(false);
 	const [newEmail, setNewEmail] = useState("");
 	const [isAddingPhone, setIsAddingPhone] = useState(false);

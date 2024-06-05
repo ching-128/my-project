@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Login from "./Login.jsx";
 import Select_file from "./Select_file.jsx";
-import Dashboard from "./Dashboard.jsx";
+import Dashboard from "./Dashboard1.jsx";
 
 const App = () => {
 	const [isLoggedIn, setIsLoggedIn] = useState(false);

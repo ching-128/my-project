@@ -207,12 +207,14 @@ const Dashboard = () => {
 										{/* Project data ends here */}
 
 										{/* Social Links */}
-										<Social_Links
-											data={data}
-											handleNestedChange={
-												handleNestedChange
-											}
-										/>
+										{data.social_links && (
+											<Social_Links
+												data={data}
+												handleNestedChange={
+													handleNestedChange
+												}
+											/>
+										)}
 										{/* Social Links Ends Here */}
 										{/* Contact Links */}
 										<Contact_Links
